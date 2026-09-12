@@ -370,7 +370,7 @@ h2{font-size:31px;line-height:1;letter-spacing:-.045em;margin:6px 0 0}
         <button class="auth-submit" id="registerSubmit" type="submit">Создать аккаунт</button>
       </form>
       <div class="auth-status" id="authStatus"></div>
-      <div class="notice">Аккаунт хранится в Supabase. После регистрации при включённом подтверждении email нужно перейти по ссылке из письма.</div>
+      <div class="notice">Аккаунт хранится в Google Apps Script и Google Таблице.</div>
     </div>
   </div>
 </div>
@@ -647,7 +647,7 @@ function register(){
   const password=$("#registerPassword").value;
   const password2=$("#registerPassword2").value;
   if(name.length<2)return setAuthStatus("Укажи имя минимум из 2 символов.","error");
-  if(!/^\\S+@\\S+\\.\\S+$/.test(email))return setAuthStatus("Укажи корректный email.","error");
+  if(!/^\S+@\S+\.\S+$/.test(email))return setAuthStatus("Укажи корректный email.","error");
   if(password.length<6)return setAuthStatus("Пароль должен быть не короче 6 символов.","error");
   if(password!==password2)return setAuthStatus("Пароли не совпадают.","error");
   authBusy=true;$("#registerSubmit").disabled=true;$("#registerSubmit").textContent="Создаём…";setAuthStatus("Создаём аккаунт…");
