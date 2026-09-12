@@ -210,6 +210,8 @@ h2{font-size:31px;line-height:1;letter-spacing:-.045em;margin:6px 0 0}
 }
 .checkout-method.active{background:rgba(242,184,75,.14);border-color:rgba(242,184,75,.55);color:#ffe09a}
 
+
+.profile-btn{width:auto;min-width:44px;padding:0 11px;display:flex;align-items:center;justify-content:center;gap:7px}.profile-avatar,.profile-menu-avatar{display:grid;place-items:center;border-radius:50%;background:rgba(242,184,75,.14);color:#ffe09a}.profile-avatar{width:26px;height:26px;font-size:15px}.profile-label{font-size:12px;font-weight:900;display:none}.profile-menu{position:fixed;z-index:210;top:68px;right:max(14px,calc((100vw - 620px)/2 + 14px));width:min(calc(100vw - 28px),340px);padding:13px;background:rgba(20,18,14,.98);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);backdrop-filter:blur(18px);opacity:0;transform:translateY(-8px);pointer-events:none;transition:.22s}.profile-menu.open{opacity:1;transform:none;pointer-events:auto}.profile-menu-head{display:flex;align-items:center;gap:11px;padding:5px}.profile-menu-avatar{width:44px;height:44px;font-size:21px;flex:none}.profile-menu-head strong{display:block;font-size:14px}.profile-menu-head small{display:block;color:var(--muted);font-size:11px;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:245px}.profile-actions{display:grid;gap:8px;margin-top:11px}.profile-action{width:100%;min-height:46px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid var(--line);font-weight:850;text-align:left;padding:0 13px}.profile-action:hover{background:rgba(255,255,255,.09)}.auth-box{display:grid;gap:10px}.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:3px 0 4px}.auth-tab{height:44px;border-radius:13px;background:rgba(255,255,255,.05);border:1px solid var(--line);font-weight:850}.auth-tab.active{background:rgba(242,184,75,.14);border-color:rgba(242,184,75,.55);color:#ffe09a}.auth-form{display:grid;gap:9px}.auth-form input{width:100%;padding:13px;border-radius:14px;background:#0c0b09;border:1px solid var(--line);color:var(--text);outline:none}.auth-form input:focus{border-color:rgba(242,184,75,.6)}.password-wrap{position:relative}.password-wrap input{padding-right:48px}.password-toggle{position:absolute;right:6px;top:6px;width:38px;height:38px;border-radius:11px;background:rgba(255,255,255,.05);font-size:16px}.auth-submit{height:50px;border-radius:15px;background:linear-gradient(135deg,#ffd979,#e7a22f);color:#251805;font-weight:950}.auth-status{min-height:18px;font-size:12px;line-height:1.45;color:var(--muted)}.auth-status.success{color:#b9efcb}.auth-status.error{color:#ff9b91}.profile-info{padding:12px;border:1px solid var(--line);border-radius:15px;background:rgba(255,255,255,.035);font-size:12px;line-height:1.55}.profile-info b{display:block;font-size:14px;margin-bottom:2px}@media(min-width:561px){.profile-label{display:inline}}
 </style>
 </head>
 <body>
@@ -219,6 +221,7 @@ h2{font-size:31px;line-height:1;letter-spacing:-.045em;margin:6px 0 0}
 <header class="top">
   <a class="brand" href="#home"><span class="brand-mark">🍯</span><span>Мёд Кубани</span></a>
   <label class="iconbtn" for="contactToggle" aria-label="Связь">💬</label>
+  <button class="iconbtn profile-btn" id="profileButton" onclick="openProfile()" aria-label="Профиль"><span class="profile-avatar" id="profileAvatar">👤</span><span class="profile-label" id="profileLabel">Профиль</span></button>
   <button class="iconbtn cart-pill" id="openCart" aria-label="Корзина">🛒<span class="cart-count" id="count">0</span></button>
 </header>
 
@@ -316,6 +319,17 @@ h2{font-size:31px;line-height:1;letter-spacing:-.045em;margin:6px 0 0}
   </div>
 </div>
 
+<div class="profile-menu" id="profileMenu" role="dialog" aria-label="Меню профиля">
+  <div class="profile-menu-head">
+    <div class="profile-menu-avatar" id="profileMenuAvatar">👤</div>
+    <div><strong id="profileMenuName">Гость</strong><small id="profileMenuEmail">Войдите или зарегистрируйтесь</small></div>
+  </div>
+  <div class="profile-actions">
+    <button class="profile-action" id="profileMainAction" onclick="openAuth()">Войти / зарегистрироваться</button>
+    <button class="profile-action" id="profileLogout" onclick="logout()" style="display:none">Выйти из аккаунта</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"><span class="toast-icon">✓</span><div id="toastText">Добавлено в корзину</div></div>
 
 <div class="overlay" id="cartOverlay">
@@ -338,6 +352,29 @@ h2{font-size:31px;line-height:1;letter-spacing:-.045em;margin:6px 0 0}
  </div>
 </div>
 
+<div class="modal" id="authModal">
+  <div class="modal-box">
+    <div class="sheet-head"><h2 id="authTitle">Вход</h2><button class="close" onclick="closeAuth()">✕</button></div>
+    <div class="auth-box">
+      <div class="auth-tabs"><button class="auth-tab active" id="loginTab" onclick="switchAuth('login')">Войти</button><button class="auth-tab" id="registerTab" onclick="switchAuth('register')">Регистрация</button></div>
+      <form class="auth-form" id="loginForm" onsubmit="event.preventDefault();login()">
+        <input id="loginEmail" type="email" autocomplete="email" placeholder="Email" required>
+        <div class="password-wrap"><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Пароль" minlength="6" required><button type="button" class="password-toggle" onclick="togglePassword('loginPassword',this)">👁</button></div>
+        <button class="auth-submit" id="loginSubmit" type="submit">Войти</button>
+      </form>
+      <form class="auth-form" id="registerForm" style="display:none" onsubmit="event.preventDefault();register()">
+        <input id="registerName" type="text" autocomplete="name" maxlength="80" placeholder="Ваше имя" required>
+        <input id="registerEmail" type="email" autocomplete="email" placeholder="Email" required>
+        <div class="password-wrap"><input id="registerPassword" type="password" autocomplete="new-password" placeholder="Пароль (минимум 6 символов)" minlength="6" required><button type="button" class="password-toggle" onclick="togglePassword('registerPassword',this)">👁</button></div>
+        <div class="password-wrap"><input id="registerPassword2" type="password" autocomplete="new-password" placeholder="Повторите пароль" minlength="6" required><button type="button" class="password-toggle" onclick="togglePassword('registerPassword2',this)">👁</button></div>
+        <button class="auth-submit" id="registerSubmit" type="submit">Создать аккаунт</button>
+      </form>
+      <div class="auth-status" id="authStatus"></div>
+      <div class="notice">Аккаунт хранится в Supabase. После регистрации при включённом подтверждении email нужно перейти по ссылке из письма.</div>
+    </div>
+  </div>
+</div>
+
 <div class="modal" id="quickModal">
  <div class="modal-box">
   <div class="sheet-head"><h2 id="modalTitle">Товар</h2><button class="close" onclick="closeQuick()">✕</button></div>
@@ -345,7 +382,14 @@ h2{font-size:31px;line-height:1;letter-spacing:-.045em;margin:6px 0 0}
  </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+// Вставь сюда данные проекта Supabase: Project URL и Publishable/Anon Key.
+const SUPABASE_URL = "https://yjizflrkgskhvmjqmtb.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_wTV89hAh4V1uCKvukMcVDQ_y8-EnNQs";
+const supabaseConfigured = SUPABASE_URL.startsWith("https://") && !SUPABASE_URL.includes("YOUR_") && SUPABASE_ANON_KEY && !SUPABASE_ANON_KEY.includes("YOUR_");
+const supabaseClient = supabaseConfigured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzueuzwS8xncR7I8XSJRwjpwPFu0Ya4Yf5k2dvpPQkd-_wlMLjejNPC0wAl6G6GW1PA/exec";
 const PRODUCTS = [
   {"name":"Цветочный мёд","perLiter":2000,"desc":"Нежный вкус и аромат кубанского разнотравья."},
@@ -544,6 +588,154 @@ function checkout() {
   });
 }
 
+
+let currentUser = null;
+let profileData = null;
+let authBusy = false;
+
+function authReady(){
+  if(!supabaseClient){
+    setAuthStatus("Сначала укажи SUPABASE_URL и SUPABASE_ANON_KEY в файле.","error");
+    return false;
+  }
+  return true;
+}
+function openProfile(){
+  $("#profileMenu").classList.toggle("open");
+}
+function closeProfile(){ $("#profileMenu").classList.remove("open"); }
+function openAuth(){
+  closeProfile();
+  $("#authModal").classList.add("open");
+  document.body.style.overflow="hidden";
+  if(!currentUser) switchAuth("login"); else showProfile();
+}
+function closeAuth(){ $("#authModal").classList.remove("open"); document.body.style.overflow=""; }
+function switchAuth(mode){
+  $("#loginTab").classList.toggle("active",mode==="login");
+  $("#registerTab").classList.toggle("active",mode==="register");
+  $("#loginForm").style.display=mode==="login"?"grid":"none";
+  $("#registerForm").style.display=mode==="register"?"grid":"none";
+  $("#authTitle").textContent=mode==="login"?"Вход":"Регистрация";
+  $("#authStatus").textContent="";
+  $("#authStatus").className="auth-status";
+}
+function setAuthStatus(text,type=""){ const el=$("#authStatus"); el.textContent=text; el.className="auth-status"+(type?" "+type:""); }
+function togglePassword(id,btn){ const input=$("#"+id); input.type=input.type==="password"?"text":"password"; btn.textContent=input.type==="password"?"👁":"🙈"; }
+function updateProfileUI(){
+  const name=profileData?.name || currentUser?.user_metadata?.name || "Гость";
+  const email=currentUser?.email || "Войдите или зарегистрируйтесь";
+  const logged=!!currentUser;
+  $("#profileLabel").textContent=logged ? (name.length>12?name.slice(0,12)+"…":name) : "Профиль";
+  $("#profileMenuName").textContent=name;
+  $("#profileMenuEmail").textContent=email;
+  $("#profileMainAction").textContent=logged?"Открыть профиль":"Войти / зарегистрироваться";
+  $("#profileLogout").style.display=logged?"block":"none";
+  $("#profileAvatar").textContent=logged?"✓":"👤";
+  $("#profileMenuAvatar").textContent=logged?(name.trim().charAt(0).toUpperCase()||"✓"):"👤";
+}
+async function loadAuth(){
+  if(!supabaseClient){updateProfileUI();return;}
+  const {data:{session}}=await supabaseClient.auth.getSession();
+  currentUser=session?.user || null;
+  await loadProfileData();
+  updateProfileUI();
+  fillCheckoutFromProfile();
+  supabaseClient.auth.onAuthStateChange(async (_event,session)=>{
+    currentUser=session?.user || null;
+    await loadProfileData();
+    updateProfileUI();
+    fillCheckoutFromProfile();
+  });
+}
+async function loadProfileData(){
+  profileData=null;
+  if(!currentUser || !supabaseClient)return;
+  const {data,error}=await supabaseClient.from("profiles").select("id,name,email").eq("id",currentUser.id).maybeSingle();
+  if(!error && data) profileData=data;
+}
+async function register(){
+  if(!authReady() || authBusy)return;
+  const name=$("#registerName").value.trim();
+  const email=$("#registerEmail").value.trim().toLowerCase();
+  const password=$("#registerPassword").value;
+  const password2=$("#registerPassword2").value;
+  if(name.length<2)return setAuthStatus("Укажи имя минимум из 2 символов.","error");
+  if(password.length<6)return setAuthStatus("Пароль должен быть не короче 6 символов.","error");
+  if(password!==password2)return setAuthStatus("Пароли не совпадают.","error");
+  authBusy=true; $("#registerSubmit").disabled=true; $("#registerSubmit").textContent="Создаём…";
+  setAuthStatus("Создаём аккаунт…");
+  try{
+    const {data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{name}}});
+    if(error)throw error;
+    if(data.user){
+      const {error:profileError}=await supabaseClient.from("profiles").upsert({id:data.user.id,name,email},{onConflict:"id"});
+      if(profileError)console.warn("Profile save:",profileError);
+    }
+    if(data.session){
+      setAuthStatus("Аккаунт создан. Вы вошли в систему.","success");
+      setTimeout(closeAuth,700);
+    }else{
+      setAuthStatus("Аккаунт создан. Проверь почту и перейди по ссылке подтверждения.","success");
+    }
+  }catch(e){
+    console.error(e);
+    setAuthStatus(authErrorText(e),"error");
+  }finally{authBusy=false;$("#registerSubmit").disabled=false;$("#registerSubmit").textContent="Создать аккаунт";}
+}
+async function login(){
+  if(!authReady() || authBusy)return;
+  const email=$("#loginEmail").value.trim().toLowerCase();
+  const password=$("#loginPassword").value;
+  authBusy=true; $("#loginSubmit").disabled=true; $("#loginSubmit").textContent="Входим…"; setAuthStatus("Проверяем данные…");
+  try{
+    const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
+    if(error)throw error;
+    currentUser=data.user; await loadProfileData(); updateProfileUI(); fillCheckoutFromProfile();
+    setAuthStatus("Вход выполнен.","success");
+    setTimeout(closeAuth,500);
+  }catch(e){console.error(e);setAuthStatus(authErrorText(e),"error");}
+  finally{authBusy=false;$("#loginSubmit").disabled=false;$("#loginSubmit").textContent="Войти";}
+}
+async function logout(){
+  closeProfile();
+  if(supabaseClient) await supabaseClient.auth.signOut();
+  currentUser=null;profileData=null;updateProfileUI();showToast("Вы вышли из аккаунта");
+}
+function authErrorText(e){
+  const m=String(e?.message||e||"");
+  if(/Invalid login credentials/i.test(m))return "Неверный email или пароль.";
+  if(/Email not confirmed/i.test(m))return "Подтверди email по ссылке из письма.";
+  if(/User already registered/i.test(m))return "Этот email уже зарегистрирован. Войди в аккаунт.";
+  if(/Password should be at least/i.test(m))return "Пароль слишком короткий.";
+  return m || "Не удалось выполнить операцию.";
+}
+function fillCheckoutFromProfile(){
+  if(profileData?.name && !$("#customerName").value.trim())$("#customerName").value=profileData.name;
+}
+function showProfile(){
+  if(!currentUser){switchAuth("login");return;}
+  $("#authTitle").textContent="Профиль";
+  $("#loginForm").style.display="none";$("#registerForm").style.display="none";
+  $("#loginTab").style.display="none";$("#registerTab").style.display="none";
+  $(".auth-tabs").style.display="none";
+  $("#authStatus").className="auth-status";$("#authStatus").textContent="";
+  let info=document.getElementById("profileInfo");
+  if(!info){info=document.createElement("div");info.id="profileInfo";info.className="profile-info";$("#authStatus").before(info);}
+  info.innerHTML=`<b>${esc(profileData?.name||currentUser.user_metadata?.name||"Покупатель")}</b>${esc(currentUser.email||"")}<br><span class="muted">Аккаунт защищён Supabase Auth.</span>`;
+  const actions=document.querySelector("#authModal .auth-box");
+  let out=document.getElementById("modalLogout");
+  if(!out){out=document.createElement("button");out.id="modalLogout";out.className="profile-action";out.textContent="Выйти из аккаунта";out.onclick=logout;actions.appendChild(out);}
+}
+function resetAuthModal(){
+  $("#loginTab").style.display="";$("#registerTab").style.display="";$(".auth-tabs").style.display="grid";
+  document.getElementById("profileInfo")?.remove();document.getElementById("modalLogout")?.remove();
+}
+const _oldSwitchAuth=switchAuth;
+switchAuth=function(mode){resetAuthModal();_oldSwitchAuth(mode);};
+$("#authModal").addEventListener("click",e=>{if(e.target.id==="authModal")closeAuth();});
+document.addEventListener("click",e=>{if(!e.target.closest("#profileMenu")&&!e.target.closest("#profileButton"))closeProfile();});
+
 let selectedRating = 0;
 
 function formatReviewDate(value){
@@ -661,7 +853,7 @@ document.querySelectorAll(".nav").forEach(a=>a.addEventListener("click",()=>{
  document.querySelectorAll(".nav").forEach(x=>x.classList.remove("active"));a.classList.add("active");
 }));
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeCart();closeQuick();}});
-renderProducts();renderCart();loadReviews();
+renderProducts();renderCart();loadReviews();loadAuth();
 </script>
 </body>
 </html>
