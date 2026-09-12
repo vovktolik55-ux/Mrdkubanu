@@ -382,13 +382,8 @@ h2{font-size:31px;line-height:1;letter-spacing:-.045em;margin:6px 0 0}
  </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // Вставь сюда данные проекта Supabase: Project URL и Publishable/Anon Key.
-const SUPABASE_URL = "https://yjizfltrkgskhvmjqmtb.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_wTV89hAh4V1uCKvukMcVDQ_y8-EnNQs";
-const supabaseConfigured = SUPABASE_URL.startsWith("https://") && !SUPABASE_URL.includes("YOUR_") && SUPABASE_ANON_KEY && !SUPABASE_ANON_KEY.includes("YOUR_");
-const supabaseClient = supabaseConfigured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzueuzwS8xncR7I8XSJRwjpwPFu0Ya4Yf5k2dvpPQkd-_wlMLjejNPC0wAl6G6GW1PA/exec";
 const PRODUCTS = [
@@ -592,17 +587,10 @@ function checkout() {
 let currentUser = null;
 let profileData = null;
 let authBusy = false;
+let authToken = localStorage.getItem("honey_auth_token") || "";
 
-function authReady(){
-  if(!supabaseClient){
-    setAuthStatus("Сначала укажи SUPABASE_URL и SUPABASE_ANON_KEY в файле.","error");
-    return false;
-  }
-  return true;
-}
-function openProfile(){
-  $("#profileMenu").classList.toggle("open");
-}
+function hasAppsScriptBridge(){ return typeof google !== "undefined" && google.script && google.script.run; }
+function openProfile(){ $("#profileMenu").classList.toggle("open"); }
 function closeProfile(){ $("#profileMenu").classList.remove("open"); }
 function openAuth(){
   closeProfile();
@@ -623,7 +611,7 @@ function switchAuth(mode){
 function setAuthStatus(text,type=""){ const el=$("#authStatus"); el.textContent=text; el.className="auth-status"+(type?" "+type:""); }
 function togglePassword(id,btn){ const input=$("#"+id); input.type=input.type==="password"?"text":"password"; btn.textContent=input.type==="password"?"👁":"🙈"; }
 function updateProfileUI(){
-  const name=profileData?.name || currentUser?.user_metadata?.name || "Гость";
+  const name=profileData?.name || currentUser?.name || "Гость";
   const email=currentUser?.email || "Войдите или зарегистрируйтесь";
   const logged=!!currentUser;
   $("#profileLabel").textContent=logged ? (name.length>12?name.slice(0,12)+"…":name) : "Профиль";
@@ -634,81 +622,61 @@ function updateProfileUI(){
   $("#profileAvatar").textContent=logged?"✓":"👤";
   $("#profileMenuAvatar").textContent=logged?(name.trim().charAt(0).toUpperCase()||"✓"):"👤";
 }
-async function loadAuth(){
-  if(!supabaseClient){updateProfileUI();return;}
-  const {data:{session}}=await supabaseClient.auth.getSession();
-  currentUser=session?.user || null;
-  await loadProfileData();
-  updateProfileUI();
-  fillCheckoutFromProfile();
-  supabaseClient.auth.onAuthStateChange(async (_event,session)=>{
-    currentUser=session?.user || null;
-    await loadProfileData();
-    updateProfileUI();
-    fillCheckoutFromProfile();
-  });
+function authCall(serverFn,args,ok,fail){
+  if(!hasAppsScriptBridge()){
+    fail({message:"Открой сайт через опубликованное веб-приложение Google Apps Script."});
+    return;
+  }
+  let runner=google.script.run.withSuccessHandler(ok).withFailureHandler(fail);
+  runner[serverFn].apply(runner,args||[]);
 }
-async function loadProfileData(){
-  profileData=null;
-  if(!currentUser || !supabaseClient)return;
-  const {data,error}=await supabaseClient.from("profiles").select("id,name,email").eq("id",currentUser.id).maybeSingle();
-  if(!error && data) profileData=data;
+function loadAuth(){
+  if(!hasAppsScriptBridge()){ updateProfileUI(); return; }
+  authCall("getCurrentUser",[authToken],function(res){
+    if(res&&res.ok){
+      currentUser=res.user||null; profileData=res.user||null;
+      if(res.token){authToken=res.token;localStorage.setItem("honey_auth_token",authToken);}
+    }else{ currentUser=null;profileData=null;authToken="";localStorage.removeItem("honey_auth_token"); }
+    updateProfileUI();fillCheckoutFromProfile();
+  },function(){ updateProfileUI(); });
 }
-async function register(){
-  if(!authReady() || authBusy)return;
+function register(){
+  if(authBusy)return;
   const name=$("#registerName").value.trim();
   const email=$("#registerEmail").value.trim().toLowerCase();
   const password=$("#registerPassword").value;
   const password2=$("#registerPassword2").value;
   if(name.length<2)return setAuthStatus("Укажи имя минимум из 2 символов.","error");
+  if(!/^\\S+@\\S+\\.\\S+$/.test(email))return setAuthStatus("Укажи корректный email.","error");
   if(password.length<6)return setAuthStatus("Пароль должен быть не короче 6 символов.","error");
   if(password!==password2)return setAuthStatus("Пароли не совпадают.","error");
-  authBusy=true; $("#registerSubmit").disabled=true; $("#registerSubmit").textContent="Создаём…";
-  setAuthStatus("Создаём аккаунт…");
-  try{
-    const {data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{name}}});
-    if(error)throw error;
-    if(data.user){
-      const {error:profileError}=await supabaseClient.from("profiles").upsert({id:data.user.id,name,email},{onConflict:"id"});
-      if(profileError)console.warn("Profile save:",profileError);
-    }
-    if(data.session){
-      setAuthStatus("Аккаунт создан. Вы вошли в систему.","success");
-      setTimeout(closeAuth,700);
-    }else{
-      setAuthStatus("Аккаунт создан. Проверь почту и перейди по ссылке подтверждения.","success");
-    }
-  }catch(e){
-    console.error(e);
-    setAuthStatus(authErrorText(e),"error");
-  }finally{authBusy=false;$("#registerSubmit").disabled=false;$("#registerSubmit").textContent="Создать аккаунт";}
+  authBusy=true;$("#registerSubmit").disabled=true;$("#registerSubmit").textContent="Создаём…";setAuthStatus("Создаём аккаунт…");
+  authCall("registerUser",[name,email,password],function(res){
+    if(!res||!res.ok){setAuthStatus(res?.message||"Не удалось зарегистрироваться.","error");return;}
+    currentUser=res.user;profileData=res.user;authToken=res.token||"";localStorage.setItem("honey_auth_token",authToken);
+    updateProfileUI();fillCheckoutFromProfile();setAuthStatus("Аккаунт создан. Вы вошли в систему.","success");setTimeout(closeAuth,700);
+  },function(e){setAuthStatus(String(e?.message||e||"Ошибка сервера."),"error");})
+  ;
+  setTimeout(function(){authBusy=false;$("#registerSubmit").disabled=false;$("#registerSubmit").textContent="Создать аккаунт";},1000);
 }
-async function login(){
-  if(!authReady() || authBusy)return;
+function login(){
+  if(authBusy)return;
   const email=$("#loginEmail").value.trim().toLowerCase();
   const password=$("#loginPassword").value;
-  authBusy=true; $("#loginSubmit").disabled=true; $("#loginSubmit").textContent="Входим…"; setAuthStatus("Проверяем данные…");
-  try{
-    const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
-    if(error)throw error;
-    currentUser=data.user; await loadProfileData(); updateProfileUI(); fillCheckoutFromProfile();
-    setAuthStatus("Вход выполнен.","success");
-    setTimeout(closeAuth,500);
-  }catch(e){console.error(e);setAuthStatus(authErrorText(e),"error");}
-  finally{authBusy=false;$("#loginSubmit").disabled=false;$("#loginSubmit").textContent="Войти";}
+  if(!email||!password)return setAuthStatus("Введи email и пароль.","error");
+  authBusy=true;$("#loginSubmit").disabled=true;$("#loginSubmit").textContent="Входим…";setAuthStatus("Проверяем данные…");
+  authCall("loginUser",[email,password],function(res){
+    if(!res||!res.ok){setAuthStatus(res?.message||"Неверный email или пароль.","error");return;}
+    currentUser=res.user;profileData=res.user;authToken=res.token||"";localStorage.setItem("honey_auth_token",authToken);
+    updateProfileUI();fillCheckoutFromProfile();setAuthStatus("Вход выполнен.","success");setTimeout(closeAuth,500);
+  },function(e){setAuthStatus(String(e?.message||e||"Ошибка сервера."),"error");})
+  ;
+  setTimeout(function(){authBusy=false;$("#loginSubmit").disabled=false;$("#loginSubmit").textContent="Войти";},1000);
 }
-async function logout(){
+function logout(){
   closeProfile();
-  if(supabaseClient) await supabaseClient.auth.signOut();
-  currentUser=null;profileData=null;updateProfileUI();showToast("Вы вышли из аккаунта");
-}
-function authErrorText(e){
-  const m=String(e?.message||e||"");
-  if(/Invalid login credentials/i.test(m))return "Неверный email или пароль.";
-  if(/Email not confirmed/i.test(m))return "Подтверди email по ссылке из письма.";
-  if(/User already registered/i.test(m))return "Этот email уже зарегистрирован. Войди в аккаунт.";
-  if(/Password should be at least/i.test(m))return "Пароль слишком короткий.";
-  return m || "Не удалось выполнить операцию.";
+  if(authToken&&hasAppsScriptBridge()) authCall("logoutUser",[authToken],function(){},function(){});
+  currentUser=null;profileData=null;authToken="";localStorage.removeItem("honey_auth_token");updateProfileUI();showToast("Вы вышли из аккаунта");
 }
 function fillCheckoutFromProfile(){
   if(profileData?.name && !$("#customerName").value.trim())$("#customerName").value=profileData.name;
@@ -717,16 +685,16 @@ function showProfile(){
   if(!currentUser){switchAuth("login");return;}
   $("#authTitle").textContent="Профиль";
   $("#loginForm").style.display="none";$("#registerForm").style.display="none";
-  $("#loginTab").style.display="none";$("#registerTab").style.display="none";
-  $(".auth-tabs").style.display="none";
+  $("#loginTab").style.display="none";$("#registerTab").style.display="none";$(".auth-tabs").style.display="none";
   $("#authStatus").className="auth-status";$("#authStatus").textContent="";
   let info=document.getElementById("profileInfo");
   if(!info){info=document.createElement("div");info.id="profileInfo";info.className="profile-info";$("#authStatus").before(info);}
-  info.innerHTML=`<b>${esc(profileData?.name||currentUser.user_metadata?.name||"Покупатель")}</b>${esc(currentUser.email||"")}<br><span class="muted">Аккаунт защищён Supabase Auth.</span>`;
+  info.innerHTML=`<b>${esc(profileData?.name||currentUser.name||"Покупатель")}</b>${esc(currentUser.email||"")}<br><span class="muted">Аккаунт защищён Google Apps Script.</span>`;
   const actions=document.querySelector("#authModal .auth-box");
   let out=document.getElementById("modalLogout");
   if(!out){out=document.createElement("button");out.id="modalLogout";out.className="profile-action";out.textContent="Выйти из аккаунта";out.onclick=logout;actions.appendChild(out);}
 }
+
 function resetAuthModal(){
   $("#loginTab").style.display="";$("#registerTab").style.display="";$(".auth-tabs").style.display="grid";
   document.getElementById("profileInfo")?.remove();document.getElementById("modalLogout")?.remove();
