@@ -592,24 +592,52 @@ async function submitReview(){
     status.textContent = "Укажи имя, поставь оценку и напиши отзыв.";
     return;
   }
+
   button.disabled = true;
   button.textContent = "Отправляем…";
   status.textContent = "Сохраняем отзыв…";
+
   try{
-    // Отправляем без CORS-чтения ответа: Google Apps Script принимает такой POST,
-    // а браузер не блокирует отправку из-за политики CORS.
-    await fetch(GOOGLE_SCRIPT_URL, {
-      method:"POST",
-      mode:"no-cors",
-      headers:{"Content-Type":"text/plain;charset=utf-8"},
-      body:JSON.stringify({type:"review", name, rating:selectedRating, text})
+    // Надёжная отправка через обычную HTML-форму.
+    // Такой POST не требует CORS-разрешений браузера.
+    const frameName = "reviewSubmitFrame_" + Date.now();
+    const iframe = document.createElement("iframe");
+    iframe.name = frameName;
+    iframe.style.display = "none";
+    document.body.appendChild(iframe);
+
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = GOOGLE_SCRIPT_URL;
+    form.target = frameName;
+    form.style.display = "none";
+
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = "payload";
+    input.value = JSON.stringify({
+      type:"review",
+      name,
+      rating:selectedRating,
+      text
     });
+
+    form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
+
+    setTimeout(()=>{
+      form.remove();
+      iframe.remove();
+    }, 5000);
+
     $("#reviewName").value="";
     $("#reviewText").value="";
     setRating(0);
     status.textContent = "Спасибо! Отзыв отправлен на модерацию. После одобрения он появится на сайте.";
     showToast("⭐ Спасибо за отзыв!");
   }catch(e){
+    console.error(e);
     status.textContent = "Не удалось отправить отзыв. Попробуй ещё раз.";
     showToast("❌ Не удалось отправить отзыв");
   }finally{
