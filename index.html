@@ -596,14 +596,14 @@ async function submitReview(){
   button.textContent = "Отправляем…";
   status.textContent = "Сохраняем отзыв…";
   try{
-    const r = await fetch(GOOGLE_SCRIPT_URL, {
+    // Отправляем без CORS-чтения ответа: Google Apps Script принимает такой POST,
+    // а браузер не блокирует отправку из-за политики CORS.
+    await fetch(GOOGLE_SCRIPT_URL, {
       method:"POST",
+      mode:"no-cors",
       headers:{"Content-Type":"text/plain;charset=utf-8"},
       body:JSON.stringify({type:"review", name, rating:selectedRating, text})
     });
-    if(!r.ok) throw new Error("HTTP " + r.status);
-    const data = await r.json();
-    if(data && data.ok===false) throw new Error(data.message || "Ошибка сохранения");
     $("#reviewName").value="";
     $("#reviewText").value="";
     setRating(0);
