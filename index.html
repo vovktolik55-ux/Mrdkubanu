@@ -95,6 +95,23 @@ h2{font-size:31px;line-height:1;letter-spacing:-.045em;margin:6px 0 0}
 .review{margin-top:10px;padding:20px;border-radius:24px;border:1px solid var(--line);background:linear-gradient(145deg,#17140e,#0f0e0b)}
 .stars{color:#ffd36b;letter-spacing:2px}
 .review p{line-height:1.55;color:#d0cbc1;font-size:14px}
+
+.review-list{display:grid;gap:10px;margin-top:12px}
+.review-card{padding:18px;border-radius:22px;border:1px solid var(--line);background:linear-gradient(145deg,#17140e,#0f0e0b)}
+.review-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.review-name{font-weight:900}
+.review-date{font-size:11px;color:#77736c}
+.review-card p{margin:10px 0 0}
+.review-form{margin-top:14px;padding:18px;border-radius:24px;border:1px solid var(--line);background:rgba(255,255,255,.035)}
+.review-form h3{margin:0 0 12px;font-size:20px}
+.rating{display:flex;gap:5px;margin:8px 0 14px}
+.rating button{width:42px;height:42px;border-radius:13px;background:rgba(255,255,255,.06);border:1px solid var(--line);font-size:22px;color:#6f6a61}
+.rating button.active{background:rgba(242,184,75,.14);border-color:rgba(242,184,75,.55);color:#ffd36b}
+.review-form input,.review-form textarea{width:100%;padding:13px;border-radius:14px;background:#0c0b09;border:1px solid var(--line);color:var(--text);outline:none}
+.review-form textarea{min-height:92px;resize:vertical;margin-top:9px}
+.review-submit{width:100%;height:50px;border-radius:15px;margin-top:10px;background:linear-gradient(135deg,#ffd979,#e7a22f);color:#251805;font-weight:950}
+.review-status{font-size:12px;color:var(--muted);margin-top:9px;min-height:18px}
+.review-empty{padding:18px;border:1px dashed var(--line);border-radius:20px;color:var(--muted);text-align:center}
 .cta{margin:18px;padding:24px;border-radius:28px;background:linear-gradient(135deg,#241a09,#17120b);border:1px solid rgba(242,184,75,.28);box-shadow:0 20px 60px rgba(242,184,75,.08)}
 .cta h2{font-size:34px}
 .cta .primary{width:100%;margin-top:15px}
@@ -254,6 +271,18 @@ h2{font-size:31px;line-height:1;letter-spacing:-.045em;margin:6px 0 0}
   <div class="feature"><div class="feature-icon">❤️</div><div><b>Избранное</b><span class="muted">Сохраняй любимые позиции прямо на устройстве.</span></div></div>
  </div>
  <div class="review"><div class="stars">★★★★★</div><p>«Хороший мёд хочется не просто купить — хочется вернуться за ним снова.»</p><small class="muted">Мёд Кубани</small></div>
+ <div class="section-head" style="margin-top:26px"><div><div class="kicker">мнение покупателей</div><h2>Отзывы</h2></div></div>
+ <div id="reviewsList" class="review-list"><div class="review-empty">Загружаем отзывы…</div></div>
+ <div class="review-form">
+   <h3>Оставить отзыв</h3>
+   <input id="reviewName" maxlength="60" placeholder="Ваше имя">
+   <div class="rating" id="reviewRating" aria-label="Оценка">
+     <button type="button" data-rating="1">★</button><button type="button" data-rating="2">★</button><button type="button" data-rating="3">★</button><button type="button" data-rating="4">★</button><button type="button" data-rating="5">★</button>
+   </div>
+   <textarea id="reviewText" maxlength="600" placeholder="Расскажите, что вам понравилось…"></textarea>
+   <button class="review-submit" id="reviewSubmit" onclick="submitReview()">Опубликовать отзыв</button>
+   <div class="review-status" id="reviewStatus">После отправки отзыв попадёт на модерацию.</div>
+ </div>
 </section>
 
 <section class="cta" id="contacts">
@@ -515,6 +544,82 @@ function checkout() {
   });
 }
 
+let selectedRating = 0;
+
+function formatReviewDate(value){
+  const d = new Date(value);
+  if(Number.isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("ru-RU", {day:"2-digit", month:"2-digit", year:"numeric"});
+}
+
+function renderReviews(items){
+  const list = $("#reviewsList");
+  if(!Array.isArray(items) || !items.length){
+    list.innerHTML = '<div class="review-empty">Пока нет отзывов. Будьте первым!</div>';
+    return;
+  }
+  list.innerHTML = items.map(r=>{
+    const rating = Math.max(1, Math.min(5, Number(r.rating)||5));
+    const stars = "★".repeat(rating) + "☆".repeat(5-rating);
+    return `<article class="review-card"><div class="review-top"><span class="review-name">${esc(r.name || "Покупатель")}</span><span class="review-date">${esc(formatReviewDate(r.createdAt))}</span></div><div class="stars" style="margin-top:7px">${stars}</div><p>${esc(r.text || "")}</p></article>`;
+  }).join("");
+}
+
+async function loadReviews(){
+  try{
+    const r = await fetch(GOOGLE_SCRIPT_URL + "?action=reviews", {method:"GET", cache:"no-store"});
+    if(!r.ok) throw new Error("HTTP " + r.status);
+    const data = await r.json();
+    renderReviews(data.items || []);
+  }catch(e){
+    $("#reviewsList").innerHTML = '<div class="review-empty">Отзывы временно недоступны. Попробуйте обновить страницу.</div>';
+  }
+}
+
+function setRating(value){
+  selectedRating = value;
+  document.querySelectorAll("#reviewRating button").forEach(btn=>{
+    btn.classList.toggle("active", Number(btn.dataset.rating) <= value);
+  });
+}
+
+async function submitReview(){
+  const name = $("#reviewName").value.trim();
+  const text = $("#reviewText").value.trim();
+  const status = $("#reviewStatus");
+  const button = $("#reviewSubmit");
+  if(!name || !text || !selectedRating){
+    status.textContent = "Укажи имя, поставь оценку и напиши отзыв.";
+    return;
+  }
+  button.disabled = true;
+  button.textContent = "Отправляем…";
+  status.textContent = "Сохраняем отзыв…";
+  try{
+    const r = await fetch(GOOGLE_SCRIPT_URL, {
+      method:"POST",
+      headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body:JSON.stringify({type:"review", name, rating:selectedRating, text})
+    });
+    if(!r.ok) throw new Error("HTTP " + r.status);
+    const data = await r.json();
+    if(data && data.ok===false) throw new Error(data.message || "Ошибка сохранения");
+    $("#reviewName").value="";
+    $("#reviewText").value="";
+    setRating(0);
+    status.textContent = "Спасибо! Отзыв отправлен на модерацию. После одобрения он появится на сайте.";
+    showToast("⭐ Спасибо за отзыв!");
+  }catch(e){
+    status.textContent = "Не удалось отправить отзыв. Попробуй ещё раз.";
+    showToast("❌ Не удалось отправить отзыв");
+  }finally{
+    button.disabled = false;
+    button.textContent = "Опубликовать отзыв";
+  }
+}
+
+document.querySelectorAll("#reviewRating button").forEach(btn=>btn.addEventListener("click",()=>setRating(Number(btn.dataset.rating))));
+
 function closeQuick(){ $("#quickModal").classList.remove("open"); }
 $("#openCart").onclick=openCart;
 $("#cartOverlay").addEventListener("click",e=>{if(e.target.id==="cartOverlay")closeCart();});
@@ -528,7 +633,7 @@ document.querySelectorAll(".nav").forEach(a=>a.addEventListener("click",()=>{
  document.querySelectorAll(".nav").forEach(x=>x.classList.remove("active"));a.classList.add("active");
 }));
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeCart();closeQuick();}});
-renderProducts();renderCart();
+renderProducts();renderCart();loadReviews();
 </script>
 </body>
 </html>
