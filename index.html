@@ -392,15 +392,14 @@ const supabaseClient = supabaseConfigured ? window.supabase.createClient(SUPABAS
 
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzueuzwS8xncR7I8XSJRwjpwPFu0Ya4Yf5k2dvpPQkd-_wlMLjejNPC0wAl6G6GW1PA/exec";
 const PRODUCTS = [
-  {"name":"Цветочный мёд","perLiter":2000,"desc":"Нежный вкус и аромат кубанского разнотравья."},
-  {"name":"Акациевый мёд","perLiter":2400,"desc":"Светлый, тонкий мёд с деликатным ароматом акации."},
-  {"name":"Липовый мёд","perLiter":2800,"desc":"Душистый мёд с тёплым цветочным ароматом."}
+  {"name":"Цветочный мёд","perLiter":1200,"desc":"Нежный вкус и аромат кубанского разнотравья."},
+  {"name":"Японская сафора","perLiter":1300,"desc":"Душистый мёд с тёплым цветочным ароматом."}
 ];
 const WA = "79384240377";
 const TELEGRAM = "https://t.me/Vovk3004";
 const MAX = "https://max.ru/u/f9LHodD0cOLp-IiHLLtW4TNEiIfvcpUvwcksCp5AB0MOeGtl5ZuJxKr4Qhg";
 let cart=[];
-try{const saved=JSON.parse(localStorage.getItem("honey_cart_v3")||"[]");cart=Array.isArray(saved)?saved:[];}catch(e){cart=[];}
+try{const saved=JSON.parse(localStorage.getItem("honey_cart_v3")||"[]");cart=Array.isArray(saved)?saved.filter(x=>x && Number.isInteger(x.i) && x.i>=0 && x.i<2):[];}catch(e){cart=[];}
 let favs=new Set();
 try{const saved=JSON.parse(localStorage.getItem("honey_favs_v3")||"[]");favs=new Set(Array.isArray(saved)?saved:[]);}catch(e){favs=new Set();}
 let activeFilter = "all";
