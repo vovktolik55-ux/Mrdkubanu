@@ -37,7 +37,7 @@ function initBrandInfo() {
 }
 
 function getPrice(product, packId) {
-  const pack = SITE_CONFIG.packaging.find(p => p.id === packId) || SITE_CONFIG.packaging;
+  const pack = SITE_CONFIG.packaging.find(p => p.id === packId) || SITE_CONFIG.packaging[0];
   return Math.round((product.basePrice1L * pack.multiplier) / 10) * 10;
 }
 
@@ -48,7 +48,7 @@ function renderCatalog() {
   const items = SITE_CONFIG.products.filter(p => p.inStock && (activeGoal === "all" || p.goal === activeGoal));
 
   items.forEach(product => {
-    if (!selectedPacks[product.id]) selectedPacks[product.id] = SITE_CONFIG.packaging.id;
+    if (!selectedPacks[product.id]) selectedPacks[product.id] = SITE_CONFIG.packaging[1] ? SITE_CONFIG.packaging[1].id : SITE_CONFIG.packaging[0].id;
     const currentPackId = selectedPacks[product.id];
     const price = getPrice(product, currentPackId);
 
@@ -56,7 +56,7 @@ function renderCatalog() {
     card.className = "product-card";
     card.innerHTML = `
       <div class="product-img-wrap">
-        <img src="${product.image}" alt="${product.name}" loading="lazy" />
+        <img src="${product.image}" alt="${product.name}" loading="lazy" onerror="this.style.display='none'" />
         <span class="product-tag">${product.tag}</span>
       </div>
       <div class="product-body">
@@ -115,6 +115,7 @@ function initSommelier() {
 function initBoxBuilder() {
   document.getElementById("box-discount-label").textContent = `${SITE_CONFIG.giftBoxDiscountPercent}%`;
   const optionsWrap = document.getElementById("box-options");
+  optionsWrap.innerHTML = "";
 
   SITE_CONFIG.products.filter(p => p.inStock).forEach(prod => {
     const price05 = getPrice(prod, "05_glass");
@@ -261,7 +262,3 @@ function initCartUI() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ chat_id: SITE_CONFIG.telegramBot.chatId, text: message })
         });
-        if (!res.ok) throw new Error("TG error");
-        cart = [];
-        saveCart();
-        e.target.reset();
