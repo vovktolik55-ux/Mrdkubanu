@@ -3,218 +3,256 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-  <title>МЁД ЮГА — Крафтовый пасечный мёд с предгорий Кавказа</title>
+  <title>МЁД ЮГА — Семейная пасека предгорий Кавказа | Розница и опт</title>
   <link rel="preconnect" href="https://googleapis.com">
   <link href="https://googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <!-- ФОНОВЫЕ СВЕЧЕНИЯ -->
-  <div class="ambient-bg">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-  </div>
-
-  <!-- ШАПКА -->
-  <header class="header">
-    <div class="container header-inner">
-      <a href="#" class="logo">
-        <span class="logo-mark"></span>
-        <span id="brand-name">МЁД ЮГА</span>
+  <!-- НАВИГАЦИЯ -->
+  <header class="navbar">
+    <div class="container nav-wrap">
+      <a href="#" class="brand">
+        <span class="brand-emblem"></span>
+        <div class="brand-stack">
+          <span id="brand-name" class="brand-title">МЁД ЮГА</span>
+          <span class="brand-sub">Пасека Кавказских предгорий</span>
+        </div>
       </a>
-      <nav class="nav">
-        <a href="#sommelier">Подбор сорта</a>
+
+      <nav class="nav-links">
         <a href="#catalog">Коллекция</a>
-        <a href="#giftbox">Подарочный бокс</a>
-        <a href="#quality">Пасека</a>
+        <a href="#giftbox">Подарочные боксы</a>
+        <a href="#wholesale">Опт и HoReCa</a>
+        <a href="#standards">Лаборатория</a>
       </nav>
-      <div class="header-actions">
-        <a id="direct-tg-btn" href="#" target="_blank" class="btn-glass hide-mob">Telegram</a>
-        <button id="open-cart-btn" class="btn-gold">
+
+      <div class="nav-actions">
+        <a id="direct-tg-btn" href="#" target="_blank" class="btn-ghost desktop-only">Telegram</a>
+        <button id="open-cart-btn" class="btn-amber">
           <span>Корзина</span>
-          <span id="cart-count" class="cart-pill">0</span>
+          <span id="cart-count" class="count-badge">0</span>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- ГЛАВНЫЙ ЭКРАН -->
+  <!-- ГЛАВНЫЙ ЭКРАН С ЖИВЫМ ЯНТАРНЫМ CANVAS -->
   <section class="hero">
-    <div class="container hero-layout">
-      <div class="hero-left">
-        <div class="eyebrow" id="hero-meta">Урожай 2026 • Краснодарский край, ст. Отрадная</div>
-        <h1>Жидкое золото <span class="gold-gradient">южных пасек</span></h1>
-        <p class="hero-sub" id="hero-slogan">Редкий горный и степной мёд напрямую с кочевой пасеки. Откачиваем только зрелым, фасуем без нагрева.</p>
-        
-        <div class="hero-cta">
-          <a href="#catalog" class="btn-gold btn-xl">Выбрать сорт мёда</a>
-          <a href="#giftbox" class="btn-glass btn-xl">Собрать бокс −15%</a>
-        </div>
+    <canvas id="amber-canvas" class="hero-canvas"></canvas>
+    <div class="hero-vignette"></div>
 
-        <div class="metrics-bar">
-          <div class="metric">
-            <strong>0%</strong>
-            <span>сахара и термической обработки</span>
-          </div>
-          <div class="metric">
-            <strong>20–28 ед.</strong>
-            <span>высокое диастазное число</span>
-          </div>
-          <div class="metric">
-            <strong>По всей РФ</strong>
-            <span>СДЭК, Почта и самовывоз</span>
-          </div>
-        </div>
+    <div class="container hero-container">
+      <div class="hero-badge" id="hero-meta">Урожай 2026 • Краснодарский край, ст. Отрадная</div>
+      <h1 class="hero-headline">
+        Эталонный горный<br>
+        и степной мёд <span class="italic-gold">Юга России</span>
+      </h1>
+      <p class="hero-lead" id="hero-slogan">
+        Прямые поставки с кочевой пасеки без посредников, купажирования и термической обработки. Только запечатанные соты и лабораторный контроль диастазы.
+      </p>
+
+      <div class="hero-buttons">
+        <a href="#catalog" class="btn-amber btn-large">Перейти в коллекцию</a>
+        <a href="#wholesale" class="btn-ghost btn-large">Расчёт опта от 10 кг</a>
       </div>
 
-      <div class="hero-right">
-        <div class="showcase-card">
-          <div class="honey-sphere">
-            <div class="honey-ring ring-outer"></div>
-            <div class="honey-ring ring-inner"></div>
-            <div class="honey-core"></div>
-          </div>
-          <div class="showcase-info">
-            <div class="showcase-badge">Свежая качка • Ограниченная партия</div>
-            <h3>Пасека предгорий Кавказа</h3>
-            <p>Белая акация, высокогорный каштан, липовый цвет и альпийское разнотравье</p>
-          </div>
+      <div class="hero-specs">
+        <div class="spec-box">
+          <span class="spec-val">16.4%</span>
+          <span class="spec-lbl">Влажность зрелого мёда (ГОСТ ≤ 20%)</span>
+        </div>
+        <div class="spec-box">
+          <span class="spec-val">18–28 ед.</span>
+          <span class="spec-lbl">Диастазное число по Готе</span>
+        </div>
+        <div class="spec-box">
+          <span class="spec-val">0 °C нагрева</span>
+          <span class="spec-lbl">Холодный розлив в стекло и липу</span>
+        </div>
+        <div class="spec-box">
+          <span class="spec-val">СДЭК / РФ</span>
+          <span class="spec-lbl">Бережная доставка в обрешётке</span>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ФИЛЬТР СОМЕЛЬЕ -->
-  <section id="sommelier" class="section-sm">
+  <!-- КАТАЛОГ С ДЕГУСТАЦИОННЫМИ ШКАЛАМИ -->
+  <section id="catalog" class="section">
     <div class="container">
-      <div class="block-header">
+      <div class="section-top">
         <div>
-          <span class="kicker">Персональный подбор</span>
-          <h2>Какой мёд вам подойдёт?</h2>
+          <span class="overline">Урожай текущего сезона</span>
+          <h2>Коллекция медоносов</h2>
+        </div>
+        <div class="filter-bar" id="sommelier-tabs">
+          <button class="filter-pill active" data-goal="all">Все сорта</button>
+          <button class="filter-pill" data-goal="immunity">Иммунитет</button>
+          <button class="filter-pill" data-goal="tea">К чаю и сырам</button>
+          <button class="filter-pill" data-goal="gift">Премиум-подарок</button>
+          <button class="filter-pill" data-goal="energy">Спорт и тонус</button>
         </div>
       </div>
-      <div class="filter-strip" id="sommelier-tabs">
-        <button class="chip active" data-goal="all">Вся коллекция</button>
-        <button class="chip" data-goal="immunity">От простуды и для иммунитета</button>
-        <button class="chip" data-goal="tea">К чаю и кофе (не приторный)</button>
-        <button class="chip" data-goal="gift">На подарок</button>
-        <button class="chip" data-goal="energy">Спорт и энергия</button>
-      </div>
+
+      <div id="catalog-grid" class="catalog-grid"></div>
     </div>
   </section>
 
-  <!-- КАТАЛОГ ТОВАРОВ -->
-  <section id="catalog" class="section-catalog">
-    <div class="container">
-      <div id="catalog-grid" class="products-grid"></div>
-    </div>
-  </section>
-
-  <!-- КОНСТРУКТОР ПОДАРОЧНЫХ НАБОРОВ -->
+  <!-- КОНСТРУКТОР ПОДАРОЧНЫХ БОКСОВ -->
   <section id="giftbox" class="section">
     <div class="container">
-      <div class="builder-panel">
-        <div class="builder-left">
-          <span class="eyebrow">Скидка <span id="box-discount-label">15%</span> на набор</span>
-          <h2>Конструктор подарочного бокса</h2>
-          <p class="muted">Выберите любые 3 сорта по 0.5 л в фирменной деревянной или крафтовой коробке — цена пересчитается автоматически.</p>
+      <div class="craft-box-card">
+        <div class="craft-left">
+          <span class="overline">Персональная комплектация • Выгода <span id="box-discount-label">15%</span></span>
+          <h2>Соберите дегустационный сет из 3 банок</h2>
+          <p class="text-dim">Выберите три любых сорта по 0.5 л. Упакуем в фирменный деревянный пенал с сургучной печатью и паспортом пасеки.</p>
 
-          <div class="slots-row" id="box-slots"></div>
+          <div class="slots-grid" id="box-slots"></div>
 
-          <div class="builder-checkout">
-            <div class="price-summary">
-              <span class="muted">Стоимость набора (3 × 0.5 л):</span>
-              <div class="price-numbers">
-                <span id="box-old-price" class="strike">0 ₽</span>
+          <div class="craft-bottom">
+            <div>
+              <span class="text-dim">Итого за сет (3 × 0.5 л):</span>
+              <div class="craft-prices">
+                <span id="box-old-price" class="old-val">0 ₽</span>
                 <strong id="box-final-price">0 ₽</strong>
               </div>
             </div>
-            <button id="add-box-to-cart" class="btn-gold btn-xl" disabled>Добавить бокс в корзину</button>
+            <button id="add-box-to-cart" class="btn-amber btn-large" disabled>Добавить сет в заказ</button>
           </div>
         </div>
 
-        <div class="builder-right">
-          <div class="picker-title">Нажмите на сорт, чтобы положить в коробку:</div>
-          <div id="box-options" class="picker-list"></div>
+        <div class="craft-right">
+          <div class="craft-list-title">Доступные сорта для комплектации:</div>
+          <div id="box-options" class="craft-options"></div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ПРЕИМУЩЕСТВА -->
-  <section id="quality" class="section">
+  <!-- КАЛЬКУЛЯТОР ОПТА И HORECA -->
+  <section id="wholesale" class="section">
     <div class="container">
-      <div class="block-header">
-        <div>
-          <span class="kicker">Стандарт пасеки</span>
-          <h2>Почему наш мёд выбирают годами</h2>
+      <div class="wholesale-box">
+        <div class="ws-info">
+          <span class="overline">Для магазинов, ресторанов и дистрибьюторов</span>
+          <h2>Калькулятор оптовой партии</h2>
+          <p class="text-dim">Поставляем мёд в пищевых куботейнерах (12 / 23 / 34 кг) с полным пакетом документов (Меркурий, протоколы испытаний). Выберите объём для расчёта скидки.</p>
+
+          <div class="ws-controls">
+            <label class="ws-label">
+              <span>Сорт мёда:</span>
+              <select id="ws-product"></select>
+            </label>
+
+            <label class="ws-label">
+              <div class="ws-range-head">
+                <span>Объём партии:</span>
+                <strong id="ws-weight-val" class="gold-num">34 кг (1 куботейнер)</strong>
+              </div>
+              <input type="range" id="ws-weight" min="10" max="500" step="2" value="34" />
+              <div class="ws-scale">
+                <span>10 кг</span>
+                <span>100 кг</span>
+                <span>250 кг</span>
+                <span>500 кг</span>
+              </div>
+            </label>
+          </div>
         </div>
-      </div>
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-num">01</div>
-          <h3>Только запечатанные соты</h3>
-          <p>Не качаем «незрелый» жидкий нектар. Ждём, пока пчёлы запечатают рамку воском — такой мёд густой, ароматный и хранится годами.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-num">02</div>
-          <h3>Никакого перегрева</h3>
-          <p>При нагреве выше 40 °C мёд теряет ферменты. Мы разливаем продукт только холодным способом, сохраняя всю природную пользу.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-num">03</div>
-          <h3>Чистые медоносы Юга</h3>
-          <p>Вывозим ульи в предгорья Кавказа, каштановые рощи и заповедные луга вдали от трасс и промышленных полей.</p>
+
+        <div class="ws-result">
+          <div class="ws-stat-row">
+            <span>Ваша оптовая скидка:</span>
+            <strong id="ws-discount" class="gold-num">−15%</strong>
+          </div>
+          <div class="ws-stat-row">
+            <span>Цена за 1 кг:</span>
+            <strong id="ws-price-kg">0 ₽</strong>
+          </div>
+          <div class="ws-total-line">
+            <span>Итого за партию:</span>
+            <strong id="ws-total">0 ₽</strong>
+          </div>
+          <button type="button" id="ws-order-btn" class="btn-amber btn-large btn-full">Зафиксировать оптовую цену</button>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ПОДВАЛ -->
-  <footer class="footer">
-    <div class="container footer-inner">
-      <div>
-        <div class="logo">
-          <span class="logo-mark"></span>
-          <span id="footer-brand">МЁД ЮГА</span>
+  <!-- ЛАБОРАТОРНЫЕ СТАНДАРТЫ -->
+  <section id="standards" class="section">
+    <div class="container">
+      <div class="section-top">
+        <div>
+          <span class="overline">Контроль качества</span>
+          <h2>Паспорт нашей пасеки</h2>
         </div>
-        <p id="footer-loc" class="muted" style="margin-top:6px;">Краснодарский край, ст. Отрадная</p>
       </div>
-      <div class="footer-links">
-        <a id="footer-phone" href="tel:+79000000000" class="btn-glass">+7 (900) 000-00-00</a>
-        <a id="footer-tg" href="#" target="_blank" class="btn-gold">Написать в Telegram</a>
+      <div class="standards-grid">
+        <div class="std-card">
+          <span class="std-idx">I</span>
+          <h3>Запечатанные соты</h3>
+          <p>Откачиваем только полностью созревший мёд с влажностью 16–17%. Он не расслаивается и не закисает при хранении.</p>
+        </div>
+        <div class="std-card">
+          <span class="std-idx">II</span>
+          <h3>Чистый сбор без антибиотиков</h3>
+          <p>Не используем химические препараты и сахарную подкормку во время медосбора. Мёд проходит проверку по системе «Меркурий».</p>
+        </div>
+        <div class="std-card">
+          <span class="std-idx">III</span>
+          <h3>Кочёвка по заповедным зонам</h3>
+          <p>От степной белой акации в мае до высокогорного каштана и альпийских лугов Кавказа в июле–августе.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ФУТЕР -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <div class="brand">
+          <span class="brand-emblem"></span>
+          <span id="footer-brand" class="brand-title">МЁД ЮГА</span>
+        </div>
+        <p id="footer-loc" class="text-dim" style="margin-top:8px;">Краснодарский край, ст. Отрадная</p>
+      </div>
+      <div class="footer-right">
+        <a id="footer-phone" href="tel:+79000000000" class="btn-ghost">+7 (900) 000-00-00</a>
+        <a id="footer-tg" href="#" target="_blank" class="btn-amber">Прямой чат в Telegram</a>
       </div>
     </div>
   </footer>
 
-  <!-- ВЫДВИЖНАЯ КОРЗИНА -->
+  <!-- НИЖНЯЯ МОБИЛЬНАЯ ПАНЕЛЬ БЫСТРОГО ДОСТУПА -->
+  <div class="mobile-dock">
+    <a href="#catalog" class="dock-link">Каталог</a>
+    <a href="#giftbox" class="dock-link">Сеты</a>
+    <a href="#wholesale" class="dock-link">Опт</a>
+    <button type="button" id="mobile-cart-trigger" class="dock-cart">
+      Корзина (<span id="mob-cart-count">0</span>)
+    </button>
+  </div>
+
+  <!-- ШТОРКА КОРЗИНЫ -->
   <div id="cart-drawer" class="drawer">
-    <div class="drawer-overlay" id="close-cart-bg"></div>
-    <div class="drawer-sheet">
-      <div class="drawer-top">
-        <h3>Оформление заказа</h3>
-        <button id="close-cart-btn" class="icon-close">✕</button>
+    <div class="drawer-bg" id="close-cart-bg"></div>
+    <div class="drawer-box">
+      <div class="drawer-header">
+        <h3>Ваш заказ</h3>
+        <button id="close-cart-btn" class="close-x">✕</button>
       </div>
 
-      <div id="cart-items" class="drawer-content"></div>
+      <div id="cart-items" class="drawer-list"></div>
 
-      <form id="order-form" class="drawer-bottom">
-        <div class="summary-line">
-          <span>Итого к оплате</span>
+      <form id="order-form" class="drawer-footer">
+        <div class="drawer-total">
+          <span>К оплате:</span>
           <strong id="cart-total">0 ₽</strong>
         </div>
         <input type="text" id="client-name" placeholder="Ваше имя" required />
         <input type="text" id="client-phone" placeholder="Телефон или @username в Telegram" required />
         <select id="client-delivery"></select>
-        <textarea id="client-comment" rows="2" placeholder="Город доставки или пожелания"></textarea>
-        <button type="submit" class="btn-gold btn-block btn-xl" id="submit-order-btn">Отправить заказ</button>
-        <p id="order-status" class="status-msg"></p>
-      </form>
-    </div>
-  </div>
-
-  <script src="config.js"></script>
-  <script src="app.js"></script>
-</body>
-</html>
